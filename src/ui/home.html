@@ -3,565 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cloud Browser - Mono Anime</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
-    
-    :root {
-      --pure-black: #0a0a0a;
-      --deep-black: #111111;
-      --soft-black: #1a1a1a;
-      --charcoal: #2a2a2a;
-      --off-white: #f0f0f0;
-      --pure-white: #ffffff;
-      --gray-light: #888888;
-      --gray-mid: #555555;
-      --accent-white: rgba(255,255,255,0.03);
-      --grid-line: rgba(255,255,255,0.04);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      image-rendering: pixelated;
-      image-rendering: -moz-crisp-edges;
-      image-rendering: crisp-edges;
-    }
-
-    body {
-      font-family: 'Noto Sans SC', sans-serif;
-      min-height: 100vh;
-      background: var(--pure-black);
-      color: var(--off-white);
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* 故障艺术背景 */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: 
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          var(--grid-line) 2px,
-          var(--grid-line) 4px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 2px,
-          var(--grid-line) 2px,
-          var(--grid-line) 4px
-        );
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.6;
-    }
-
-    /* 扫描线效果 */
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(
-        to bottom,
-        transparent 50%,
-        rgba(0,0,0,0.1) 50%
-      );
-      background-size: 100% 4px;
-      pointer-events: none;
-      z-index: 9998;
-      opacity: 0.3;
-      animation: scanline 8s linear infinite;
-    }
-
-    @keyframes scanline {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(4px); }
-    }
-
-    /* 顶部拖拽区 */
-    .drag-region {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 38px;
-      -webkit-app-region: drag;
-      z-index: 9999;
-    }
-
-    .container {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0 24px 140px;
-      gap: 50px;
-      position: relative;
-      z-index: 10;
-    }
-
-    /* 二次元Logo - 像素风云朵 */
-    .logo {
-      position: relative;
-      filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
-      animation: float 6s ease-in-out infinite;
-    }
-    
-    .cloud-icon {
-      width: 140px;
-      height: 90px;
-      color: var(--pure-white);
-      position: relative;
-    }
-
-    /* 像素化云朵SVG */
-    .cloud-icon svg {
-      width: 100%;
-      height: 100%;
-      fill: currentColor;
-      filter: contrast(1.2);
-    }
-
-    /* 故障闪烁效果 */
-    .logo::before {
-      content: '';
-      position: absolute;
-      top: -10%; left: -10%;
-      width: 120%; height: 120%;
-      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-      animation: glitch 4s infinite;
-      pointer-events: none;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-12px) rotate(1deg); }
-    }
-
-    @keyframes glitch {
-      0%, 90%, 100% { opacity: 0; transform: translateX(0); }
-      92% { opacity: 0.8; transform: translateX(-2px); }
-      94% { opacity: 0; transform: translateX(2px); }
-      96% { opacity: 0.5; transform: translateX(-1px); }
-    }
-
-    /* 搜索框 - 极简二次元风格 */
-    .search-box {
-      width: 100%;
-      max-width: 680px;
-      position: relative;
-    }
-
-    #search-input {
-      width: 100%;
-      height: 64px;
-      padding: 0 80px 0 28px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
-      letter-spacing: 0.5px;
-      background: var(--deep-black);
-      border: 2px solid var(--charcoal);
-      border-radius: 4px;
-      color: var(--pure-white);
-      outline: none;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 
-        inset 0 2px 4px rgba(0,0,0,0.5),
-        0 4px 6px rgba(0,0,0,0.3);
-    }
-
-    #search-input::placeholder {
-      color: var(--gray-mid);
-      font-family: 'Noto Sans SC', sans-serif;
-    }
-
-    #search-input:focus {
-      border-color: var(--pure-white);
-      background: var(--soft-black);
-      box-shadow: 
-        0 0 0 1px var(--pure-white),
-        0 0 30px rgba(255,255,255,0.1),
-        inset 0 2px 4px rgba(0,0,0,0.5);
-    }
-
-    /* 像素风搜索按钮 */
-    .search-btn {
-      position: absolute;
-      right: 8px; top: 50%;
-      transform: translateY(-50%);
-      width: 48px; height: 48px;
-      border: 2px solid var(--off-white);
-      border-radius: 0;
-      background: var(--pure-white);
-      color: var(--pure-black);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.4rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      transition: all 0.15s steps(3);
-      box-shadow: 4px 4px 0 var(--charcoal);
-    }
-
-    .search-btn:hover {
-      transform: translateY(-50%) translate(-2px, -2px);
-      box-shadow: 6px 6px 0 var(--gray-mid);
-      background: var(--off-white);
-    }
-
-    .search-btn:active {
-      transform: translateY(-50%) translate(2px, 2px);
-      box-shadow: 0 0 0 var(--charcoal);
-    }
-
-    /* 快捷方式 - 极简卡片 */
-    .shortcuts {
-      width: 100%;
-      max-width: 720px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 16px;
-      padding: 0 20px;
-    }
-
-    .shortcut {
-      aspect-ratio: 1;
-      background: var(--deep-black);
-      border: 1px solid var(--charcoal);
-      border-radius: 2px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      color: var(--gray-light);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* 角标装饰 */
-    .shortcut::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 8px; height: 8px;
-      border-top: 2px solid var(--gray-mid);
-      border-left: 2px solid var(--gray-mid);
-      transition: all 0.2s;
-    }
-
-    .shortcut::after {
-      content: '';
-      position: absolute;
-      bottom: 0; right: 0;
-      width: 8px; height: 8px;
-      border-bottom: 2px solid var(--gray-mid);
-      border-right: 2px solid var(--gray-mid);
-      transition: all 0.2s;
-    }
-
-    .shortcut:hover {
-      border-color: var(--off-white);
-      color: var(--pure-white);
-      transform: translateY(-4px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-
-    .shortcut:hover::before,
-    .shortcut:hover::after {
-      border-color: var(--pure-white);
-      width: 100%; height: 100%;
-      opacity: 0.1;
-    }
-
-    .shortcut-icon {
-      width: 40px; height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      filter: grayscale(100%) contrast(1.2);
-      transition: filter 0.2s;
-    }
-
-    .shortcut:hover .shortcut-icon {
-      filter: grayscale(0%) contrast(1.1);
-    }
-
-    .shortcut span {
-      font-size: 0.8rem;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* 底部导航 - 机械键盘风格 */
-    .bottom-nav {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      height: 64px;
-      padding: 0 20px;
-      background: var(--deep-black);
-      border: 2px solid var(--charcoal);
-      border-radius: 2px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 100;
-      box-shadow: 
-        0 20px 50px rgba(0,0,0,0.8),
-        0 0 0 1px rgba(255,255,255,0.05);
-    }
-
-    .nav-btn {
-      width: 44px; height: 44px;
-      background: var(--soft-black);
-      border: 1px solid var(--charcoal);
-      border-radius: 2px;
-      color: var(--gray-light);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.1s steps(2);
-      position: relative;
-      box-shadow: 0 4px 0 var(--pure-black);
-    }
-
-    .nav-btn:hover {
-      background: var(--charcoal);
-      color: var(--pure-white);
-      border-color: var(--gray-mid);
-      transform: translateY(2px);
-      box-shadow: 0 2px 0 var(--pure-black);
-    }
-
-    .nav-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 0 0 var(--pure-black);
-    }
-
-    .tab-indicator {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 0 16px;
-      height: 44px;
-      background: var(--soft-black);
-      border: 1px solid var(--charcoal);
-      border-radius: 2px;
-      margin: 0 8px;
-    }
-
-    .tab-count {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--pure-white);
-      min-width: 28px;
-      text-align: center;
-      padding: 4px 8px;
-      background: var(--charcoal);
-      border: 1px solid var(--gray-mid);
-    }
-
-    .close-tab {
-      width: 28px; height: 28px;
-      background: transparent;
-      border: 1px solid var(--charcoal);
-      border-radius: 0;
-      color: var(--gray-mid);
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-
-    .close-tab:hover {
-      background: var(--pure-white);
-      color: var(--pure-black);
-      border-color: var(--pure-white);
-    }
-
-    /* 网页容器 */
-    .webview-container {
-      position: fixed;
-      inset: 0;
-      z-index: 5;
-      display: none;
-      background: var(--pure-black);
-    }
-
-    /* 装饰性文字 */
-    .deco-text {
-      position: fixed;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--gray-mid);
-      opacity: 0.5;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .deco-text.top-left { top: 50px; left: 30px; }
-    .deco-text.top-right { top: 50px; right: 30px; text-align: right; }
-    .deco-text.bottom-left { bottom: 100px; left: 30px; }
-    .deco-text.bottom-right { bottom: 100px; right: 30px; text-align: right; }
-
-    /* 移动端适配 */
-    @media (max-width: 640px) {
-      .container { padding: 0 16px 120px; gap: 40px; }
-      .cloud-icon { width: 120px; height: 80px; }
-      #search-input { height: 56px; font-size: 1rem; padding: 0 70px 0 20px; }
-      .search-btn { width: 42px; height: 42px; font-size: 1.2rem; }
-      .shortcuts { grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0; }
-      .shortcut { aspect-ratio: 1; }
-      .shortcut-icon { width: 32px; height: 32px; font-size: 1.4rem; }
-      .bottom-nav { min-width: auto; padding: 0 12px; gap: 8px; height: 56px; }
-      .nav-btn { width: 38px; height: 38px; font-size: 1rem; }
-      .tab-indicator { padding: 0 12px; height: 38px; }
-    }
-
-    /* 加载动画 */
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-
-    .cursor-blink::after {
-      content: '_';
-      animation: blink 1s infinite;
-      color: var(--pure-white);
-    }
-  </style>
+  <title>云box</title>
+  <link rel="stylesheet" href="home.css">
 </head>
 <body>
 
+  <!-- 拖拽区域 -->
   <div class="drag-region"></div>
 
-  <!-- 装饰性代码注释 -->
-  <div class="deco-text top-left">// SYSTEM.INIT<br>// MODE: DARK<br>// THEME: MONO_ANIME</div>
-  <div class="deco-text top-right">v2.0.0<br>BUILD 2024<br>STATUS: ONLINE</div>
-  <div class="deco-text bottom-left">> WAITING_FOR_INPUT...<br>> READY_</div>
-  <div class="deco-text bottom-right">MEM: 64TB<br>CLOUD: CONNECTED<br>LATENCY: 0ms</div>
+  <!-- 装饰性系统信息 -->
+  <div class="sys-info top-left">
+    <div>// CLOUDBOX.INIT</div>
+    <div>// MODE: DARK_ANIME</div>
+    <div>// THEME: MONOCHROME</div>
+  </div>
+  
+  <div class="sys-info top-right">
+    <div id="version">v1.0.0</div>
+    <div id="build-time">BUILD 2024</div>
+    <div class="status-online">STATUS: ONLINE</div>
+  </div>
 
-  <div class="container">
+  <div class="sys-info bottom-left" id="console-log">
+    <div>> WAITING_FOR_INPUT...</div>
+    <div>> READY_</div>
+  </div>
+
+  <div class="sys-info bottom-right">
+    <div>MEM: <span id="mem-usage">--</span></div>
+    <div>CLOUD: CONNECTED</div>
+    <div>LATENCY: <span id="latency">0</span>ms</div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="container" id="home-view">
     <div class="logo">
       <div class="cloud-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
           <path d="M6 18h12a4 4 0 0 0 0-8h-1.5a5.5 5.5 0 0 0-11 0H6a4 4 0 0 0 0 8z"/>
           <path d="M8 10l2-3 2 3 2-2 2 2" stroke-opacity="0.3"/>
         </svg>
       </div>
+      <div class="logo-text">云box</div>
     </div>
 
     <div class="search-box">
-      <input type="text" id="search-input" placeholder="搜索或输入指令..." autocomplete="off" autofocus>
-      <button class="search-btn" onclick="handleSearch()">→</button>
+      <input type="text" id="search-input" placeholder="搜索或输入网址..." autocomplete="off" spellcheck="false">
+      <button class="search-btn" id="search-btn">→</button>
     </div>
 
     <div class="shortcuts" id="shortcuts">
-      <a class="shortcut" href="https://github.com" target="_blank">
-        <div class="shortcut-icon">◈</div>
-        <span>GITHUB</span>
-      </a>
-      <a class="shortcut" href="https://bilibili.com" target="_blank">
-        <div class="shortcut-icon">▣</div>
-        <span>BILIBILI</span>
-      </a>
-      <a class="shortcut" href="https://pixiv.net" target="_blank">
-        <div class="shortcut-icon">✦</div>
-        <span>PIXIV</span>
-      </a>
-      <a class="shortcut" href="https://twitter.com" target="_blank">
-        <div class="shortcut-icon">◇</div>
-        <span>X/TWITTER</span>
-      </a>
-      <a class="shortcut" href="https://youtube.com" target="_blank">
-        <div class="shortcut-icon">▶</div>
-        <span>YOUTUBE</span>
-      </a>
-      <a class="shortcut" href="https://reddit.com" target="_blank">
-        <div class="shortcut-icon">●</div>
-        <span>REDDIT</span>
-      </a>
+      <!-- 动态生成 -->
     </div>
   </div>
 
+  <!-- 网页视图容器 -->
+  <div class="webview-stack" id="webview-stack"></div>
+
+  <!-- 底部导航 -->
   <div class="bottom-nav">
-    <button class="nav-btn" onclick="showHome()" title="主页">⌂</button>
+    <button class="nav-btn" id="btn-home" title="主页 ⌘1">⌂</button>
     
     <div class="tab-indicator">
-      <span class="tab-count">01</span>
-      <button class="close-tab" onclick="closeCurrentTab()">×</button>
+      <span class="tab-count" id="tab-count">00</span>
+      <button class="close-tab" id="btn-close-tab" title="关闭标签页 ⌘W">×</button>
     </div>
 
-    <button class="nav-btn" onclick="goBack()" title="后退">←</button>
-    <button class="nav-btn" onclick="goForward()" title="前进">→</button>
-    <button class="nav-btn" onclick="reload()" title="刷新">↻</button>
+    <div class="nav-divider"></div>
+
+    <button class="nav-btn" id="btn-back" title="后退 ⌘←">←</button>
+    <button class="nav-btn" id="btn-forward" title="前进 ⌘→">→</button>
+    <button class="nav-btn" id="btn-reload" title="刷新 ⌘R">↻</button>
     
-    <button class="nav-btn" onclick="addNewTab()" title="新标签页">+</button>
-    <button class="nav-btn" onclick="toggleMenu()" title="菜单">≡</button>
+    <div class="nav-divider"></div>
+
+    <button class="nav-btn" id="btn-new-tab" title="新标签页 ⌘T">+</button>
+    <button class="nav-btn" id="btn-menu" title="菜单 ⌘M">≡</button>
   </div>
 
-  <div class="webview-container" id="webview-container"></div>
+  <!-- 设置面板 -->
+  <div class="settings-panel" id="settings-panel">
+    <div class="settings-header">
+      <h3>系统设置</h3>
+      <button class="close-settings" id="close-settings">×</button>
+    </div>
+    
+    <div class="settings-section">
+      <h4>外观</h4>
+      <div class="setting-item">
+        <label>搜索引擎</label>
+        <select id="engine-select">
+          <option value="https://www.google.com/search?q=">Google</option>
+          <option value="https://www.bing.com/search?q=">Bing</option>
+          <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+          <option value="https://search.brave.com/search?q=">Brave</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label>自定义主题</label>
+        <button class="btn-secondary" id="btn-import-theme">导入 CSS 主题</button>
+      </div>
+    </div>
 
-  <script>
-    // 简单的搜索处理
-    function handleSearch() {
-      const input = document.getElementById('search-input');
-      const query = input.value.trim();
-      if (query) {
-        if (query.includes('.') && !query.includes(' ')) {
-          window.open('https://' + query, '_blank');
-        } else {
-          window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank');
-        }
-        input.value = '';
-      }
-    }
+    <div class="settings-section">
+      <h4>快捷方式</h4>
+      <div class="setting-item">
+        <button class="btn-secondary" id="btn-add-shortcut">添加快捷方式</button>
+      </div>
+      <div id="shortcuts-list" class="shortcuts-list"></div>
+    </div>
 
-    // 回车搜索
-    document.getElementById('search-input').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') handleSearch();
-    });
+    <div class="settings-section">
+      <h4>关于</h4>
+      <div class="about-info">
+        <div>云box <span id="about-version">v1.0.0</span></div>
+        <div>极简可定制浏览器</div>
+        <div class="about-links">
+          <a href="#" id="link-github">GitHub</a>
+          <a href="#" id="link-docs">文档</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // 导航功能占位
-    function showHome() { location.reload(); }
-    function goBack() { history.back(); }
-    function goForward() { history.forward(); }
-    function reload() { location.reload(); }
-    function addNewTab() { alert('新标签页功能'); }
-    function closeCurrentTab() { alert('关闭标签页'); }
-    function toggleMenu() { alert('菜单功能'); }
+  <!-- 遮罩层 -->
+  <div class="overlay" id="overlay"></div>
 
-    // 动态添加快捷方式悬停效果
-    document.querySelectorAll('.shortcut').forEach(shortcut => {
-      shortcut.addEventListener('mouseenter', function() {
-        this.style.borderColor = '#ffffff';
-      });
-      shortcut.addEventListener('mouseleave', function() {
-        this.style.borderColor = '#2a2a2a';
-      });
-    });
-  </script>
+  <script src="home.js"></script>
 </body>
 </html>
 
