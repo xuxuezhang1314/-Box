@@ -1,33 +1,31 @@
-# ☁️ 云box (CloudBox)
+# ☁️ 云box Mobile
 
-> 极简可定制的二次元风格浏览器
+极简二次元风格的移动端浏览器 App。
 
-![preview](preview.png)
+## 技术栈
 
-## 特性
+- **Capacitor** - 跨平台原生容器
+- **Vite** - 构建工具
+- **原生插件**:
+  - `@capacitor/browser` - 原生浏览器
+  - `@capacitor/status-bar` - 状态栏控制
+  - `@capacitor/app` - 应用生命周期
 
-- 🎨 **极致视觉** - 黑白二次元风格，扫描线动画，故障艺术效果
-- 🧩 **插件系统** - 支持用户编写 JavaScript 插件扩展功能
-- 🎯 **极简交互** - 无冗余按钮，所有操作都有键盘快捷键
-- 🏷️ **标签管理** - 底部导航栏，类似移动端的多标签体验
-- 🖌️ **主题定制** - 支持导入自定义 CSS 文件
-
-## 快捷键
-
-| 快捷键 | 功能 |
-|--------|------|
-| `⌘/Ctrl + T` | 新标签页（回到主页） |
-| `⌘/Ctrl + W` | 关闭当前标签页 |
-| `⌘/Ctrl + L` | 聚焦搜索框 |
-| `⌘/Ctrl + ,` | 打开设置 |
-| `⌘/Ctrl + ←` | 后退 |
-| `⌘/Ctrl + →` | 前进 |
-| `⌘/Ctrl + R` | 刷新 |
-
-## 安装
+## 开发
 
 ```bash
-git clone https://github.com/yourusername/cloudbox.git
-cd cloudbox
+# 安装
 npm install
-npm start
+
+# 开发模式（浏览器）
+npm run dev
+
+# 构建
+npm run build
+
+# 运行到 Android
+npm run android
+
+# 运行到 iOS（需要 Mac）
+npm run ios
+
